@@ -8,7 +8,7 @@ It fetches a personalized feed of news articles and allows you to chat directly 
 - **Dynamic News Feed:** Fetches and displays news articles with images.
 - **AI Chat Assistant:** Discuss news articles with an AI right inside the app.
 - **Pluggable Backend:** Settings page allows switching between Mock, Hermes, and OpenRouter.
-- **Local Persistence:** Chat history and user settings are persisted securely via Room and DataStore.
+- **Local Persistence:** Chat history and user settings are persisted via Room and DataStore.
 - **Modern UI:** Built fully in Jetpack Compose.
 
 ## Getting Started

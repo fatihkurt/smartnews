@@ -99,7 +99,7 @@ class ChatViewModel @Inject constructor(
                 chatDao.insertMessage(ChatMessage(
                     articleId = currentId,
                     isUser = false,
-                    message = "Error connecting to Hermes server.",
+                    message = "Error connecting to Chat Provider: ${e.message}",
                     timestamp = System.currentTimeMillis()
                 ))
             } finally {

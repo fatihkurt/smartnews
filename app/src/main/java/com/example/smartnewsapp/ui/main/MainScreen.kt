@@ -54,7 +54,11 @@ fun MainScreen(
     ) { padding ->
         if (articles.isEmpty() && !isRefreshing) {
             Box(modifier = modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("No articles found.", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Pull down to refresh", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         } else {
             PullToRefreshBox(
