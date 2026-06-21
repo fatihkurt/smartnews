@@ -13,8 +13,13 @@ enum class ChatProvider {
     MOCK, HERMES, OPENROUTER
 }
 
+enum class NewsProvider {
+    MOCK, HERMES
+}
+
 data class UserSettings(
     val activeProvider: ChatProvider,
+    val activeNewsProvider: NewsProvider,
     val openRouterApiKey: String,
     val openRouterModel: String,
     val newsSourceUrl: String
@@ -26,6 +31,7 @@ class SettingsRepository @Inject constructor(
 ) {
     companion object {
         val ACTIVE_PROVIDER = stringPreferencesKey("active_provider")
+        val ACTIVE_NEWS_PROVIDER = stringPreferencesKey("active_news_provider")
         val OPENROUTER_API_KEY = stringPreferencesKey("openrouter_api_key")
         val OPENROUTER_MODEL = stringPreferencesKey("openrouter_model")
         val NEWS_SOURCE_URL = stringPreferencesKey("news_source_url")
@@ -35,17 +41,27 @@ class SettingsRepository @Inject constructor(
         val providerStr = preferences[ACTIVE_PROVIDER] ?: ChatProvider.MOCK.name
         val provider = try { ChatProvider.valueOf(providerStr) } catch (e: Exception) { ChatProvider.MOCK }
         
+        val newsProviderStr = preferences[ACTIVE_NEWS_PROVIDER] ?: NewsProvider.MOCK.name
+        val newsProvider = try { NewsProvider.valueOf(newsProviderStr) } catch (e: Exception) { NewsProvider.MOCK }
+        
         UserSettings(
             activeProvider = provider,
+            activeNewsProvider = newsProvider,
             openRouterApiKey = preferences[OPENROUTER_API_KEY] ?: "",
             openRouterModel = preferences[OPENROUTER_MODEL] ?: "openai/gpt-4o",
-            newsSourceUrl = preferences[NEWS_SOURCE_URL] ?: "https://hermes.example.com/api/news"
+            newsSourceUrl = preferences[NEWS_SOURCE_URL] ?: "https://hermes.vectororch.com/api/news"
         )
     }
 
     suspend fun updateProvider(provider: ChatProvider) {
         dataStore.edit { preferences ->
             preferences[ACTIVE_PROVIDER] = provider.name
+        }
+    }
+
+    suspend fun updateNewsProvider(provider: NewsProvider) {
+        dataStore.edit { preferences ->
+            preferences[ACTIVE_NEWS_PROVIDER] = provider.name
         }
     }
 

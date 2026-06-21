@@ -3,6 +3,7 @@ package com.example.smartnewsapp.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.smartnewsapp.domain.ChatProvider
+import com.example.smartnewsapp.domain.NewsProvider
 import com.example.smartnewsapp.domain.SettingsRepository
 import com.example.smartnewsapp.domain.UserSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,12 +21,18 @@ class SettingsViewModel @Inject constructor(
     val settings: StateFlow<UserSettings> = settingsRepository.settings.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = UserSettings(ChatProvider.MOCK, "", "openai/gpt-4o", "https://hermes.example.com/api/news")
+        initialValue = UserSettings(ChatProvider.MOCK, NewsProvider.MOCK, "", "openai/gpt-4o", "https://hermes.vectororch.com/api/news")
     )
 
     fun updateProvider(provider: ChatProvider) {
         viewModelScope.launch {
             settingsRepository.updateProvider(provider)
+        }
+    }
+
+    fun updateNewsProvider(provider: NewsProvider) {
+        viewModelScope.launch {
+            settingsRepository.updateNewsProvider(provider)
         }
     }
 

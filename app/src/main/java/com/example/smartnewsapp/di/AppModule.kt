@@ -13,6 +13,7 @@ import com.example.smartnewsapp.data.remote.HermesApi
 import com.example.smartnewsapp.data.remote.OpenRouterApi
 import com.example.smartnewsapp.domain.gateway.ChatGateway
 import com.example.smartnewsapp.data.remote.gateway.DynamicChatGateway
+import com.example.smartnewsapp.data.remote.gateway.DynamicNewsGateway
 import com.example.smartnewsapp.data.remote.gateway.HermesGateway
 import com.example.smartnewsapp.data.remote.gateway.MockGateway
 import com.example.smartnewsapp.domain.gateway.NewsGateway
@@ -94,8 +95,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideNewsGateway(mockGateway: MockGateway): NewsGateway {
-        return mockGateway // Change to hermesGateway to swap implementations
+    fun provideNewsGateway(dynamicNewsGateway: DynamicNewsGateway): NewsGateway {
+        return dynamicNewsGateway
     }
 
     @Provides

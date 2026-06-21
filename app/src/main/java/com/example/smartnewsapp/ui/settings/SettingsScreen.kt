@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.smartnewsapp.domain.ChatProvider
+import com.example.smartnewsapp.domain.NewsProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,7 +19,8 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     
-    var expanded by remember { mutableStateOf(false) }
+    var chatExpanded by remember { mutableStateOf(false) }
+    var newsExpanded by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf(settings.openRouterApiKey) }
     var modelInput by remember { mutableStateOf(settings.openRouterModel) }
     var newsSourceInput by remember { mutableStateOf(settings.newsSourceUrl) }
@@ -31,7 +33,7 @@ fun SettingsScreen(
         if (modelInput == "openai/gpt-4o" && settings.openRouterModel != "openai/gpt-4o") {
             modelInput = settings.openRouterModel
         }
-        if (newsSourceInput == "https://hermes.example.com/api/news" && settings.newsSourceUrl != "https://hermes.example.com/api/news") {
+        if (newsSourceInput == "https://hermes.vectororch.com/api/news" && settings.newsSourceUrl != "https://hermes.vectororch.com/api/news") {
             newsSourceInput = settings.newsSourceUrl
         }
     }
@@ -58,27 +60,27 @@ fun SettingsScreen(
             Text("Chat Provider", style = MaterialTheme.typography.titleMedium)
             
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
+                expanded = chatExpanded,
+                onExpandedChange = { chatExpanded = !chatExpanded }
             ) {
                 OutlinedTextField(
                     value = settings.activeProvider.name,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Active Provider") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    label = { Text("Active Chat Provider") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = chatExpanded) },
                     modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = chatExpanded,
+                    onDismissRequest = { chatExpanded = false }
                 ) {
                     ChatProvider.values().forEach { provider ->
                         DropdownMenuItem(
                             text = { Text(provider.name) },
                             onClick = {
                                 viewModel.updateProvider(provider)
-                                expanded = false
+                                chatExpanded = false
                             }
                         )
                     }
@@ -88,6 +90,34 @@ fun SettingsScreen(
             Divider()
             
             Text("News Configuration", style = MaterialTheme.typography.titleMedium)
+            
+            ExposedDropdownMenuBox(
+                expanded = newsExpanded,
+                onExpandedChange = { newsExpanded = !newsExpanded }
+            ) {
+                OutlinedTextField(
+                    value = settings.activeNewsProvider.name,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Active News Provider") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = newsExpanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = newsExpanded,
+                    onDismissRequest = { newsExpanded = false }
+                ) {
+                    NewsProvider.values().forEach { provider ->
+                        DropdownMenuItem(
+                            text = { Text(provider.name) },
+                            onClick = {
+                                viewModel.updateNewsProvider(provider)
+                                newsExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
             
             OutlinedTextField(
                 value = newsSourceInput,
