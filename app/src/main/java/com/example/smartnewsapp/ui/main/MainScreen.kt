@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,6 +31,7 @@ fun MainScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val articles by viewModel.articles.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     Scaffold(
         topBar = {
@@ -50,18 +52,24 @@ fun MainScreen(
             )
         }
     ) { padding ->
-        if (articles.isEmpty()) {
+        if (articles.isEmpty() && !isRefreshing) {
             Box(modifier = modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else {
-            LazyColumn(
-                modifier = modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { viewModel.sync() },
+                modifier = modifier.fillMaxSize().padding(padding)
             ) {
-                items(articles, key = { it.id }) { article ->
-                    ArticleCard(article = article, onClick = { onItemClick(Chat(article.id)) })
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(articles, key = { it.id }) { article ->
+                        ArticleCard(article = article, onClick = { onItemClick(Chat(article.id)) })
+                    }
                 }
             }
         }
