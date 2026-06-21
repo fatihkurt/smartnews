@@ -2,6 +2,7 @@ package com.example.smartnewsapp.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartnewsapp.domain.AppDefaults
 import com.example.smartnewsapp.domain.ChatProvider
 import com.example.smartnewsapp.domain.SettingsRepository
 import com.example.smartnewsapp.domain.UserSettings
@@ -20,7 +21,12 @@ class SettingsViewModel @Inject constructor(
     val settings: StateFlow<UserSettings> = settingsRepository.settings.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = UserSettings(ChatProvider.MOCK, "", "openai/gpt-4o", "https://hermes.example.com/api/news")
+        initialValue = UserSettings(
+            ChatProvider.MOCK,
+            "",
+            AppDefaults.OPENROUTER_MODEL,
+            AppDefaults.NEWS_SOURCE_URL
+        )
     )
 
     fun updateProvider(provider: ChatProvider) {

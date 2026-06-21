@@ -14,7 +14,7 @@ import com.example.smartnewsapp.data.remote.OpenRouterApi
 import com.example.smartnewsapp.domain.gateway.ChatGateway
 import com.example.smartnewsapp.data.remote.gateway.DynamicChatGateway
 import com.example.smartnewsapp.data.remote.gateway.HermesGateway
-import com.example.smartnewsapp.data.remote.gateway.MockGateway
+import com.example.smartnewsapp.domain.AppDefaults
 import com.example.smartnewsapp.domain.gateway.NewsGateway
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -73,7 +73,7 @@ object AppModule {
     fun provideHermesApi(okHttpClient: OkHttpClient): HermesApi {
         val json = Json { ignoreUnknownKeys = true }
         return Retrofit.Builder()
-            .baseUrl("https://hermes.example.com/") // This should ideally be configurable
+            .baseUrl(AppDefaults.HERMES_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
@@ -94,8 +94,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideNewsGateway(mockGateway: MockGateway): NewsGateway {
-        return mockGateway // Change to hermesGateway to swap implementations
+    fun provideNewsGateway(hermesGateway: HermesGateway): NewsGateway {
+        return hermesGateway
     }
 
     @Provides

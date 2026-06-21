@@ -35,11 +35,15 @@ class SettingsRepository @Inject constructor(
         val providerStr = preferences[ACTIVE_PROVIDER] ?: ChatProvider.MOCK.name
         val provider = try { ChatProvider.valueOf(providerStr) } catch (e: Exception) { ChatProvider.MOCK }
         
+        val configuredNewsSourceUrl = preferences[NEWS_SOURCE_URL]
+
         UserSettings(
             activeProvider = provider,
             openRouterApiKey = preferences[OPENROUTER_API_KEY] ?: "",
-            openRouterModel = preferences[OPENROUTER_MODEL] ?: "openai/gpt-4o",
-            newsSourceUrl = preferences[NEWS_SOURCE_URL] ?: "https://hermes.example.com/api/news"
+            openRouterModel = preferences[OPENROUTER_MODEL] ?: AppDefaults.OPENROUTER_MODEL,
+            newsSourceUrl = configuredNewsSourceUrl
+                ?.takeUnless { it.isBlank() || it == AppDefaults.LEGACY_NEWS_SOURCE_URL }
+                ?: AppDefaults.NEWS_SOURCE_URL
         )
     }
 

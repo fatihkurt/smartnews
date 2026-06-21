@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.smartnewsapp.domain.AppDefaults
 import com.example.smartnewsapp.domain.ChatProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,10 +29,10 @@ fun SettingsScreen(
         if (apiKeyInput.isEmpty() && settings.openRouterApiKey.isNotEmpty()) {
             apiKeyInput = settings.openRouterApiKey
         }
-        if (modelInput == "openai/gpt-4o" && settings.openRouterModel != "openai/gpt-4o") {
+        if (modelInput == AppDefaults.OPENROUTER_MODEL && settings.openRouterModel != AppDefaults.OPENROUTER_MODEL) {
             modelInput = settings.openRouterModel
         }
-        if (newsSourceInput == "https://hermes.example.com/api/news" && settings.newsSourceUrl != "https://hermes.example.com/api/news") {
+        if (newsSourceInput == AppDefaults.NEWS_SOURCE_URL && settings.newsSourceUrl != AppDefaults.NEWS_SOURCE_URL) {
             newsSourceInput = settings.newsSourceUrl
         }
     }
