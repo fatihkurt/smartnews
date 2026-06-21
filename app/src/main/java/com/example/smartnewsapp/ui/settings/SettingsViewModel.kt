@@ -20,7 +20,7 @@ class SettingsViewModel @Inject constructor(
     val settings: StateFlow<UserSettings> = settingsRepository.settings.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = UserSettings(ChatProvider.MOCK, "", "openai/gpt-4o")
+        initialValue = UserSettings(ChatProvider.MOCK, "", "openai/gpt-4o", "https://hermes.example.com/api/news")
     )
 
     fun updateProvider(provider: ChatProvider) {
@@ -32,6 +32,12 @@ class SettingsViewModel @Inject constructor(
     fun updateOpenRouterCredentials(apiKey: String, model: String) {
         viewModelScope.launch {
             settingsRepository.updateOpenRouterCredentials(apiKey, model)
+        }
+    }
+
+    fun updateNewsSourceUrl(url: String) {
+        viewModelScope.launch {
+            settingsRepository.updateNewsSourceUrl(url)
         }
     }
 }

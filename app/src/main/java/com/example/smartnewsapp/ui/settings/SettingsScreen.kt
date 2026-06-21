@@ -21,6 +21,7 @@ fun SettingsScreen(
     var expanded by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf(settings.openRouterApiKey) }
     var modelInput by remember { mutableStateOf(settings.openRouterModel) }
+    var newsSourceInput by remember { mutableStateOf(settings.newsSourceUrl) }
 
     // Sync input state when flow emits initially
     LaunchedEffect(settings) {
@@ -29,6 +30,9 @@ fun SettingsScreen(
         }
         if (modelInput == "openai/gpt-4o" && settings.openRouterModel != "openai/gpt-4o") {
             modelInput = settings.openRouterModel
+        }
+        if (newsSourceInput == "https://hermes.example.com/api/news" && settings.newsSourceUrl != "https://hermes.example.com/api/news") {
+            newsSourceInput = settings.newsSourceUrl
         }
     }
 
@@ -82,6 +86,24 @@ fun SettingsScreen(
             }
             
             Divider()
+            
+            Text("News Configuration", style = MaterialTheme.typography.titleMedium)
+            
+            OutlinedTextField(
+                value = newsSourceInput,
+                onValueChange = { newsSourceInput = it },
+                label = { Text("News Source Endpoint URL") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Button(
+                onClick = { viewModel.updateNewsSourceUrl(newsSourceInput) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Save News Source URL")
+            }
+            
+            HorizontalDivider()
             
             Text("OpenRouter Configuration", style = MaterialTheme.typography.titleMedium)
             

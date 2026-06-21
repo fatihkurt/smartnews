@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Url
 
 @Serializable
 data class ChatRequest(
@@ -29,9 +30,9 @@ data class Choice(
 )
 
 interface HermesApi {
-    // Assuming the Hermes server exposes an endpoint to fetch gathered news
-    @GET("api/news")
-    suspend fun fetchLatestNews(): List<Article>
+    // Configurable endpoint to fetch gathered news
+    @GET
+    suspend fun fetchLatestNews(@Url url: String): List<Article>
 
     // OpenAI-compatible chat completions endpoint
     @POST("v1/chat/completions")
