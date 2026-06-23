@@ -8,10 +8,12 @@ import com.example.smartnewsapp.data.local.ChatMessage
 import com.example.smartnewsapp.data.remote.Message
 import com.example.smartnewsapp.domain.gateway.ChatGateway
 import com.example.smartnewsapp.domain.NewsRepository
+import com.example.smartnewsapp.domain.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.flatMapLatest
@@ -23,7 +25,8 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val chatDao: ChatDao,
     private val chatGateway: ChatGateway,
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val articleIdFlow = MutableStateFlow<String?>(null)
@@ -79,16 +82,20 @@ class ChatViewModel @Inject constructor(
                 // Add the new user message
                 apiMessages.add(Message(role = "user", content = text))
 
-                // 3. Send request to Gateway
+                // 3. Get active provider for metadata
+                val activeProvider = settingsRepository.settings.first().activeProvider.name
+                
+                // 4. Send request to Gateway
                 val response = chatGateway.chat(apiMessages)
                 
-                // 4. Save Hermes response locally
+                // 5. Save Hermes response locally
                 val hermesMsgText = response.choices.firstOrNull()?.message?.content ?: "I'm sorry, I couldn't process that."
                 
                 val hermesMsg = ChatMessage(
                     articleId = currentId,
                     isUser = false,
                     message = hermesMsgText,
+                    provider = activeProvider,
                     timestamp = System.currentTimeMillis()
                 )
                 chatDao.insertMessage(hermesMsg)
@@ -100,6 +107,7 @@ class ChatViewModel @Inject constructor(
                     articleId = currentId,
                     isUser = false,
                     message = "Error connecting to Chat Provider: ${e.message}",
+                    provider = "SYSTEM",
                     timestamp = System.currentTimeMillis()
                 ))
             } finally {

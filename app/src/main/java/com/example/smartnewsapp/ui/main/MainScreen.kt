@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -22,6 +23,12 @@ import com.example.smartnewsapp.Chat
 import com.example.smartnewsapp.Profile
 import com.example.smartnewsapp.Settings
 import androidx.navigation3.runtime.NavKey
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,8 +52,8 @@ fun MainScreen(
                     IconButton(onClick = { onItemClick(Settings) }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
-                    TextButton(onClick = { onItemClick(Profile) }) {
-                        Text("Profile")
+                    IconButton(onClick = { onItemClick(Profile) }) {
+                        Icon(Icons.Filled.Person, contentDescription = "Profile")
                     }
                 }
             )
@@ -88,6 +95,19 @@ fun ArticleCard(article: Article, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            if (article.media.image.url != null && article.media.image.type != "none" && article.media.image.type != "fallback_category") {
+                AsyncImage(
+                    model = article.media.image.url,
+                    contentDescription = article.media.image.alt ?: "Article Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.LightGray),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
             Text(
                 text = article.title,
                 style = MaterialTheme.typography.titleLarge,
@@ -97,7 +117,7 @@ fun ArticleCard(article: Article, onClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = article.summary,
+                text = article.content.summary,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,
@@ -109,12 +129,12 @@ fun ArticleCard(article: Article, onClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = article.author,
+                    text = article.source.name,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Relevance: ${(article.relevanceScore * 100).toInt()}%",
+                    text = "Importance: ${article.metadata.importance}/5",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary
                 )

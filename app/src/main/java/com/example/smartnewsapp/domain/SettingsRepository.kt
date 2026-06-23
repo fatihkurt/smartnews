@@ -22,7 +22,12 @@ data class UserSettings(
     val activeNewsProvider: NewsProvider,
     val openRouterApiKey: String,
     val openRouterModel: String,
-    val newsSourceUrl: String
+    val hermesApiKey: String,
+    val hermesChatUrl: String,
+    val hermesModel: String,
+    val newsSourceUrl: String,
+    val selectedLanguage: String,
+    val selectedCategories: Set<String>
 )
 
 @Singleton
@@ -34,7 +39,12 @@ class SettingsRepository @Inject constructor(
         val ACTIVE_NEWS_PROVIDER = stringPreferencesKey("active_news_provider")
         val OPENROUTER_API_KEY = stringPreferencesKey("openrouter_api_key")
         val OPENROUTER_MODEL = stringPreferencesKey("openrouter_model")
+        val HERMES_API_KEY = stringPreferencesKey("hermes_api_key")
+        val HERMES_CHAT_URL = stringPreferencesKey("hermes_chat_url")
+        val HERMES_MODEL = stringPreferencesKey("hermes_model")
         val NEWS_SOURCE_URL = stringPreferencesKey("news_source_url")
+        val SELECTED_LANGUAGE = stringPreferencesKey("selected_language")
+        val SELECTED_CATEGORIES = androidx.datastore.preferences.core.stringSetPreferencesKey("selected_categories")
     }
 
     val settings: Flow<UserSettings> = dataStore.data.map { preferences ->
@@ -49,7 +59,12 @@ class SettingsRepository @Inject constructor(
             activeNewsProvider = newsProvider,
             openRouterApiKey = preferences[OPENROUTER_API_KEY] ?: "",
             openRouterModel = preferences[OPENROUTER_MODEL] ?: "openai/gpt-4o",
-            newsSourceUrl = preferences[NEWS_SOURCE_URL] ?: "https://hermes.vectororch.com/api/news"
+            hermesApiKey = preferences[HERMES_API_KEY] ?: "",
+            hermesChatUrl = preferences[HERMES_CHAT_URL] ?: "https://hermes.vectororch.com/v1/chat/completions",
+            hermesModel = preferences[HERMES_MODEL] ?: "hermes-agent",
+            newsSourceUrl = preferences[NEWS_SOURCE_URL] ?: "https://hermes.vectororch.com/api/news",
+            selectedLanguage = preferences[SELECTED_LANGUAGE] ?: "English",
+            selectedCategories = preferences[SELECTED_CATEGORIES] ?: emptySet()
         )
     }
 
@@ -72,9 +87,39 @@ class SettingsRepository @Inject constructor(
         }
     }
 
+    suspend fun updateHermesApiKey(apiKey: String) {
+        dataStore.edit { preferences ->
+            preferences[HERMES_API_KEY] = apiKey
+        }
+    }
+
+    suspend fun updateHermesChatUrl(url: String) {
+        dataStore.edit { preferences ->
+            preferences[HERMES_CHAT_URL] = url
+        }
+    }
+
+    suspend fun updateHermesModel(model: String) {
+        dataStore.edit { preferences ->
+            preferences[HERMES_MODEL] = model
+        }
+    }
+
     suspend fun updateNewsSourceUrl(url: String) {
         dataStore.edit { preferences ->
             preferences[NEWS_SOURCE_URL] = url
+        }
+    }
+
+    suspend fun updateSelectedLanguage(language: String) {
+        dataStore.edit { preferences ->
+            preferences[SELECTED_LANGUAGE] = language
+        }
+    }
+
+    suspend fun updateSelectedCategories(categories: Set<String>) {
+        dataStore.edit { preferences ->
+            preferences[SELECTED_CATEGORIES] = categories
         }
     }
 }

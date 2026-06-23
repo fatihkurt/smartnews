@@ -24,6 +24,11 @@ class HermesGateway @Inject constructor(
     }
 
     override suspend fun chat(messages: List<Message>): ChatResponse {
-        return hermesApi.chat(ChatRequest(messages = messages))
+        val settings = settingsRepository.settings.first()
+        val apiKey = settings.hermesApiKey
+        val url = settings.hermesChatUrl
+        val model = settings.hermesModel
+        val authHeader = if (apiKey.isNotBlank()) "Bearer $apiKey" else null
+        return hermesApi.chat(url, authHeader, ChatRequest(model = model, messages = messages))
     }
 }

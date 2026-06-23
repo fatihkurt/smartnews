@@ -4,6 +4,7 @@ import com.example.smartnewsapp.data.local.Article
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Url
 
@@ -35,6 +36,10 @@ interface HermesApi {
     suspend fun fetchLatestNews(@Url url: String): List<Article>
 
     // OpenAI-compatible chat completions endpoint
-    @POST("v1/chat/completions")
-    suspend fun chat(@Body request: ChatRequest): ChatResponse
+    @POST
+    suspend fun chat(
+        @Url url: String,
+        @Header("Authorization") authorization: String?,
+        @Body request: ChatRequest
+    ): ChatResponse
 }

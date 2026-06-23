@@ -10,5 +10,6 @@ data class ChatMessage(
     val articleId: String,
     val isUser: Boolean,
     val message: String,
+    val provider: String = "",
     val timestamp: Long
 )

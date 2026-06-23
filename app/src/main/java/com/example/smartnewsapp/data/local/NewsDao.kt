@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NewsDao {
-    @Query("SELECT * FROM articles ORDER BY relevanceScore DESC, publishedAt DESC")
+    @Query("SELECT * FROM articles ORDER BY publishedAt DESC")
     fun getAllArticles(): Flow<List<Article>>
 
     @Query("SELECT * FROM articles WHERE id = :id")
