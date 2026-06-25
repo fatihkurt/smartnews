@@ -53,16 +53,4 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-
-    fun handleArticleUpvote(articleKeywords: List<String>) {
-        viewModelScope.launch {
-            interestGraphManager.handleArticleUpvote(articleKeywords)
-        }
-    }
-
-    fun handleArticleDownvote(articleKeywords: List<String>) {
-        viewModelScope.launch {
-            interestGraphManager.handleArticleDownvote(articleKeywords)
-        }
-    }
 }

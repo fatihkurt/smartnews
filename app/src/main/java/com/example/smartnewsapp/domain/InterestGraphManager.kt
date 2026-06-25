@@ -1,10 +1,12 @@
 package com.example.smartnewsapp.domain
 
+import com.example.smartnewsapp.data.local.Article
 import com.example.smartnewsapp.data.local.InterestProfile
 import com.example.smartnewsapp.data.local.ProfileDao
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.pow
 
 @Singleton
 class InterestGraphManager @Inject constructor(
@@ -12,53 +14,49 @@ class InterestGraphManager @Inject constructor(
 ) {
     fun getInterestProfile(): Flow<List<InterestProfile>> = profileDao.getInterestProfile()
 
-    suspend fun recordInteraction(keyword: String, positiveFeedback: Boolean, weight: Float = 1.0f) {
+    suspend fun recordInteraction(keyword: String, delta: Float) {
         val existingProfile = profileDao.getProfileByKeyword(keyword)
-        val scoreAdjustment = if (positiveFeedback) weight else -weight
+        val nowMillis = System.currentTimeMillis()
         
         val updatedProfile = if (existingProfile != null) {
+            val days = ((nowMillis - existingProfile.lastUpdated) / 86400000L).coerceAtLeast(0)
+            val decayedScore = existingProfile.score * 0.98f.pow(days.toFloat())
+            val newScore = (decayedScore + delta).coerceIn(-10f, 10f)
             existingProfile.copy(
-                score = existingProfile.score + scoreAdjustment,
-                lastUpdated = System.currentTimeMillis()
+                score = newScore,
+                lastUpdated = nowMillis
             )
         } else {
             InterestProfile(
                 keyword = keyword,
-                score = scoreAdjustment,
-                lastUpdated = System.currentTimeMillis()
+                score = delta.coerceIn(-10f, 10f),
+                lastUpdated = nowMillis
             )
         }
 
         profileDao.upsertProfile(updatedProfile)
     }
 
-    /**
-     * Call this when a user explicitly upvotes an article
-     */
-    suspend fun handleArticleUpvote(articleKeywords: List<String>) {
-        articleKeywords.forEach { keyword ->
-            recordInteraction(keyword, positiveFeedback = true, weight = 2.0f)
-        }
+    suspend fun handleArticleLiked(article: Article) {
+        recordInteraction(article.category, 1.5f)
+        article.metadata.tags?.forEach { recordInteraction(it, 1.0f) }
+        article.metadata.entities?.forEach { recordInteraction(it, 0.5f) }
+        article.metadata.followTopicId?.let { recordInteraction(it, 2.0f) }
+        recordInteraction(article.source.name, 0.25f)
     }
 
-    /**
-     * Call this when a user explicitly downvotes or dismisses an article
-     */
-    suspend fun handleArticleDownvote(articleKeywords: List<String>) {
-        articleKeywords.forEach { keyword ->
-            recordInteraction(keyword, positiveFeedback = false, weight = 2.0f)
-        }
+    suspend fun handleArticleDisliked(article: Article) {
+        recordInteraction(article.category, -0.75f)
+        article.metadata.tags?.forEach { recordInteraction(it, -1.0f) }
+        article.metadata.entities?.forEach { recordInteraction(it, -0.5f) }
+        article.metadata.followTopicId?.let { recordInteraction(it, -2.0f) }
+        recordInteraction(article.source.name, -0.25f)
     }
 
-    /**
-     * Call this based on implicit reading time
-     */
-    suspend fun handleArticleReadTime(articleKeywords: List<String>, readTimeSeconds: Long) {
+    suspend fun handleArticleReadTime(article: Article, readTimeSeconds: Long) {
         if (readTimeSeconds > 30) {
-            // Read for more than 30 seconds -> mild positive interest
-            articleKeywords.forEach { keyword ->
-                recordInteraction(keyword, positiveFeedback = true, weight = 0.5f)
-            }
+            recordInteraction(article.category, 0.5f)
+            article.metadata.tags?.forEach { recordInteraction(it, 0.5f) }
         }
     }
 }

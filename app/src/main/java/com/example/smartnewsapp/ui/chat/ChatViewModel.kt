@@ -118,23 +118,32 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun handleArticleUpvote(articleId: String, articleKeywords: List<String>) {
-        val currentFeedback = article.value?.feedback ?: 0
+    fun handleArticleLiked(articleId: String) {
+        val currentArticle = article.value ?: return
+        val currentFeedback = currentArticle.feedback
         if (currentFeedback == 1) return
 
         viewModelScope.launch {
-            interestGraphManager.handleArticleUpvote(articleKeywords)
+            interestGraphManager.handleArticleLiked(currentArticle)
             newsRepository.updateArticleFeedback(articleId, 1)
         }
     }
 
-    fun handleArticleDownvote(articleId: String, articleKeywords: List<String>) {
-        val currentFeedback = article.value?.feedback ?: 0
+    fun handleArticleDisliked(articleId: String) {
+        val currentArticle = article.value ?: return
+        val currentFeedback = currentArticle.feedback
         if (currentFeedback == -1) return
 
         viewModelScope.launch {
-            interestGraphManager.handleArticleDownvote(articleKeywords)
+            interestGraphManager.handleArticleDisliked(currentArticle)
             newsRepository.updateArticleFeedback(articleId, -1)
+        }
+    }
+
+    fun recordReadTime(seconds: Long) {
+        val currentArticle = article.value ?: return
+        viewModelScope.launch {
+            interestGraphManager.handleArticleReadTime(currentArticle, seconds)
         }
     }
 }

@@ -63,6 +63,14 @@ fun ChatScreen(
         }
     }
 
+    DisposableEffect(articleId) {
+        val startTime = System.currentTimeMillis()
+        onDispose {
+            val elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000L
+            viewModel.recordReadTime(elapsedSeconds)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -116,14 +124,8 @@ fun ChatScreen(
                             autoScrollEnabled = true
                             viewModel.sendMessage(q)
                         },
-                        onLike = {
-                            val keywords = listOf(it.category, it.source.name) + (it.metadata.tags ?: emptyList())
-                            viewModel.handleArticleUpvote(it.id, keywords)
-                        },
-                        onDislike = {
-                            val keywords = listOf(it.category, it.source.name) + (it.metadata.tags ?: emptyList())
-                            viewModel.handleArticleDownvote(it.id, keywords)
-                        }
+                        onLike = { viewModel.handleArticleLiked(it.id) },
+                        onDislike = { viewModel.handleArticleDisliked(it.id) }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider()
