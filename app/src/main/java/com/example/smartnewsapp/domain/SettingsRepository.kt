@@ -51,8 +51,8 @@ class SettingsRepository @Inject constructor(
         val providerStr = preferences[ACTIVE_PROVIDER] ?: ChatProvider.MOCK.name
         val provider = try { ChatProvider.valueOf(providerStr) } catch (e: Exception) { ChatProvider.MOCK }
         
-        val newsProviderStr = preferences[ACTIVE_NEWS_PROVIDER] ?: NewsProvider.MOCK.name
-        val newsProvider = try { NewsProvider.valueOf(newsProviderStr) } catch (e: Exception) { NewsProvider.MOCK }
+        val newsProviderStr = preferences[ACTIVE_NEWS_PROVIDER] ?: NewsProvider.HERMES.name
+        val newsProvider = try { NewsProvider.valueOf(newsProviderStr) } catch (e: Exception) { NewsProvider.HERMES }
         
         UserSettings(
             activeProvider = provider,

@@ -51,8 +51,11 @@ object AppModule {
             SmartNewsDatabase::class.java,
             "smart_news.db"
         )
-            .addMigrations(SmartNewsDatabase.MIGRATION_4_5, SmartNewsDatabase.MIGRATION_5_6)
-            .fallbackToDestructiveMigration()
+            .addMigrations(
+                SmartNewsDatabase.MIGRATION_4_5,
+                SmartNewsDatabase.MIGRATION_5_6,
+                SmartNewsDatabase.MIGRATION_6_7
+            )
             .build()
     }
 

@@ -1,6 +1,7 @@
 package com.example.smartnewsapp.data.local
 
 import androidx.room.Entity
+import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,7 +25,10 @@ data class Article(
     // Local fields
     val isRead: Boolean = false,
     val isSaved: Boolean = false,
-    val feedback: Int = 0 // 1 = liked, -1 = disliked, 0 = none
+    @ColumnInfo(defaultValue = "0")
+    val feedback: Int = 0, // 1 = liked, -1 = disliked, 0 = none
+    @ColumnInfo(defaultValue = "2147483647")
+    val feedRank: Int = Int.MAX_VALUE
 )
 
 @Serializable

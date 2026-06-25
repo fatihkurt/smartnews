@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NewsDao {
-    @Query("SELECT * FROM articles ORDER BY publishedAt DESC")
+    @Query("SELECT * FROM articles ORDER BY feedRank ASC, publishedAt DESC")
     fun getAllArticles(): Flow<List<Article>>
 
     @Query("SELECT * FROM articles WHERE id = :id")
@@ -23,6 +23,8 @@ interface NewsDao {
 
     @Transaction
     suspend fun insertArticles(articles: List<Article>) {
+        if (articles.isEmpty()) return
+
         val existingArticles = getArticlesByIds(articles.map { it.id })
         val existingMap = existingArticles.associateBy { it.id }
         

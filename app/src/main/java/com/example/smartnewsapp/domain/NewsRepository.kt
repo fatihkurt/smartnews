@@ -28,6 +28,7 @@ class NewsRepository @Inject constructor(
     suspend fun syncNews() {
         try {
             val remoteArticles = newsGateway.fetchLatestNews()
+                .mapIndexed { index, article -> article.copy(feedRank = index) }
             newsDao.insertArticles(remoteArticles)
             
             // Background image scraping

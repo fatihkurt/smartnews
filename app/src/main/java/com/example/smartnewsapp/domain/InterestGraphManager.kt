@@ -15,7 +15,10 @@ class InterestGraphManager @Inject constructor(
     fun getInterestProfile(): Flow<List<InterestProfile>> = profileDao.getInterestProfile()
 
     suspend fun recordInteraction(keyword: String, delta: Float) {
-        val existingProfile = profileDao.getProfileByKeyword(keyword)
+        val normalizedKeyword = LocalRecommendationScorer.canonicalKeyword(keyword)
+        if (normalizedKeyword.isBlank()) return
+
+        val existingProfile = profileDao.getProfileByKeyword(normalizedKeyword)
         val nowMillis = System.currentTimeMillis()
         
         val updatedProfile = if (existingProfile != null) {
@@ -28,7 +31,7 @@ class InterestGraphManager @Inject constructor(
             )
         } else {
             InterestProfile(
-                keyword = keyword,
+                keyword = normalizedKeyword,
                 score = delta.coerceIn(-10f, 10f),
                 lastUpdated = nowMillis
             )
@@ -39,7 +42,7 @@ class InterestGraphManager @Inject constructor(
 
     suspend fun handleArticleLiked(article: Article) {
         recordInteraction(article.category, 1.5f)
-        article.metadata.tags?.forEach { recordInteraction(it, 1.0f) }
+        article.metadata.tags.forEach { recordInteraction(it, 1.0f) }
         article.metadata.entities?.forEach { recordInteraction(it, 0.5f) }
         article.metadata.followTopicId?.let { recordInteraction(it, 2.0f) }
         recordInteraction(article.source.name, 0.25f)
@@ -47,7 +50,7 @@ class InterestGraphManager @Inject constructor(
 
     suspend fun handleArticleDisliked(article: Article) {
         recordInteraction(article.category, -0.75f)
-        article.metadata.tags?.forEach { recordInteraction(it, -1.0f) }
+        article.metadata.tags.forEach { recordInteraction(it, -1.0f) }
         article.metadata.entities?.forEach { recordInteraction(it, -0.5f) }
         article.metadata.followTopicId?.let { recordInteraction(it, -2.0f) }
         recordInteraction(article.source.name, -0.25f)
@@ -56,7 +59,7 @@ class InterestGraphManager @Inject constructor(
     suspend fun handleArticleReadTime(article: Article, readTimeSeconds: Long) {
         if (readTimeSeconds > 30) {
             recordInteraction(article.category, 0.5f)
-            article.metadata.tags?.forEach { recordInteraction(it, 0.5f) }
+            article.metadata.tags.forEach { recordInteraction(it, 0.5f) }
         }
     }
 }

@@ -21,7 +21,7 @@ class SettingsViewModel @Inject constructor(
     val settings: StateFlow<UserSettings> = settingsRepository.settings.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = UserSettings(ChatProvider.MOCK, NewsProvider.MOCK, "", "openai/gpt-4o", "", "https://hermes.vectororch.com/v1/chat/completions", "hermes-agent", "https://hermes.vectororch.com/api/news", "English", emptySet())
+        initialValue = UserSettings(ChatProvider.MOCK, NewsProvider.HERMES, "", "openai/gpt-4o", "", "https://hermes.vectororch.com/v1/chat/completions", "hermes-agent", "https://hermes.vectororch.com/api/news", "English", emptySet())
     )
 
     fun updateProvider(provider: ChatProvider) {
