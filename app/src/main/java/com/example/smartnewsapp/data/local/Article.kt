@@ -23,7 +23,8 @@ data class Article(
     
     // Local fields
     val isRead: Boolean = false,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val feedback: Int = 0 // 1 = liked, -1 = disliked, 0 = none
 )
 
 @Serializable

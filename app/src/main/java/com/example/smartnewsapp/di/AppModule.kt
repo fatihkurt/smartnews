@@ -50,7 +50,10 @@ object AppModule {
             context,
             SmartNewsDatabase::class.java,
             "smart_news.db"
-        ).fallbackToDestructiveMigration().build()
+        )
+            .addMigrations(SmartNewsDatabase.MIGRATION_4_5, SmartNewsDatabase.MIGRATION_5_6)
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

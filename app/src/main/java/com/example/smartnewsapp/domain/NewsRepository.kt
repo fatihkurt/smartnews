@@ -21,6 +21,10 @@ class NewsRepository @Inject constructor(
 
     fun getArticle(id: String): Flow<Article> = newsDao.getArticleById(id)
 
+    suspend fun updateArticleFeedback(id: String, feedback: Int) {
+        newsDao.updateArticleFeedback(id, feedback)
+    }
+
     suspend fun syncNews() {
         try {
             val remoteArticles = newsGateway.fetchLatestNews()
@@ -28,7 +32,8 @@ class NewsRepository @Inject constructor(
             
             // Background image scraping
             CoroutineScope(Dispatchers.IO).launch {
-                fetchMissingImages(remoteArticles)
+                val dbArticles = newsDao.getArticlesByIds(remoteArticles.map { it.id })
+                fetchMissingImages(dbArticles)
             }
         } catch (e: Exception) {
             // Handle error, maybe log or rethrow

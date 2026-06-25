@@ -7,6 +7,7 @@ import com.example.smartnewsapp.data.local.ChatDao
 import com.example.smartnewsapp.data.local.ChatMessage
 import com.example.smartnewsapp.data.remote.Message
 import com.example.smartnewsapp.domain.gateway.ChatGateway
+import com.example.smartnewsapp.domain.InterestGraphManager
 import com.example.smartnewsapp.domain.NewsRepository
 import com.example.smartnewsapp.domain.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +27,8 @@ class ChatViewModel @Inject constructor(
     private val chatDao: ChatDao,
     private val chatGateway: ChatGateway,
     private val newsRepository: NewsRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val interestGraphManager: InterestGraphManager
 ) : ViewModel() {
 
     private val articleIdFlow = MutableStateFlow<String?>(null)
@@ -113,6 +115,26 @@ class ChatViewModel @Inject constructor(
             } finally {
                 _isTyping.value = false
             }
+        }
+    }
+
+    fun handleArticleUpvote(articleId: String, articleKeywords: List<String>) {
+        val currentFeedback = article.value?.feedback ?: 0
+        if (currentFeedback == 1) return
+
+        viewModelScope.launch {
+            interestGraphManager.handleArticleUpvote(articleKeywords)
+            newsRepository.updateArticleFeedback(articleId, 1)
+        }
+    }
+
+    fun handleArticleDownvote(articleId: String, articleKeywords: List<String>) {
+        val currentFeedback = article.value?.feedback ?: 0
+        if (currentFeedback == -1) return
+
+        viewModelScope.launch {
+            interestGraphManager.handleArticleDownvote(articleKeywords)
+            newsRepository.updateArticleFeedback(articleId, -1)
         }
     }
 }

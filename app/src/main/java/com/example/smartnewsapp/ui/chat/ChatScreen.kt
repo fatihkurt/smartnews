@@ -23,6 +23,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -113,6 +115,14 @@ fun ChatScreen(
                         onSuggestedQuestionClick = { q ->
                             autoScrollEnabled = true
                             viewModel.sendMessage(q)
+                        },
+                        onLike = {
+                            val keywords = listOf(it.category, it.source.name) + (it.metadata.tags ?: emptyList())
+                            viewModel.handleArticleUpvote(it.id, keywords)
+                        },
+                        onDislike = {
+                            val keywords = listOf(it.category, it.source.name) + (it.metadata.tags ?: emptyList())
+                            viewModel.handleArticleDownvote(it.id, keywords)
                         }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -173,7 +183,12 @@ fun MessageBubble(text: String, isUser: Boolean, provider: String = "") {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ArticleDetailHeader(article: Article, onSuggestedQuestionClick: (String) -> Unit) {
+fun ArticleDetailHeader(
+    article: Article,
+    onSuggestedQuestionClick: (String) -> Unit,
+    onLike: () -> Unit,
+    onDislike: () -> Unit
+) {
     val uriHandler = LocalUriHandler.current
     SelectionContainer {
         Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
@@ -195,11 +210,38 @@ fun ArticleDetailHeader(article: Article, onSuggestedQuestionClick: (String) -> 
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "By ${article.source.name} • ${article.category.replaceFirstChar { it.uppercase() }}",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "By ${article.source.name} • ${article.category.replaceFirstChar { it.uppercase() }}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Row {
+                    val isLiked = article.feedback == 1
+                    val isDisliked = article.feedback == -1
+
+                    IconButton(onClick = onLike, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            Icons.Filled.ThumbUp, 
+                            contentDescription = "Like", 
+                            modifier = Modifier.size(16.dp), 
+                            tint = if (isLiked) MaterialTheme.colorScheme.primary else Color.Gray
+                        )
+                    }
+                    IconButton(onClick = onDislike, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            Icons.Filled.ThumbDown, 
+                            contentDescription = "Dislike", 
+                            modifier = Modifier.size(16.dp), 
+                            tint = if (isDisliked) MaterialTheme.colorScheme.error else Color.Gray
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = article.content.expanded,

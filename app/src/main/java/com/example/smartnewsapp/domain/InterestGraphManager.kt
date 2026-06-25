@@ -29,7 +29,7 @@ class InterestGraphManager @Inject constructor(
             )
         }
 
-        profileDao.insertProfile(updatedProfile)
+        profileDao.upsertProfile(updatedProfile)
     }
 
     /**

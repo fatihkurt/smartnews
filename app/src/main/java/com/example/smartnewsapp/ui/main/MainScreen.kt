@@ -75,11 +75,14 @@ fun MainScreen(
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    contentPadding = PaddingValues(start = 4.dp, end = 4.dp, bottom = 8.dp, top = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(articles, key = { it.id }) { article ->
-                        ArticleCard(article = article, onClick = { onItemClick(Chat(article.id)) })
+                        ArticleCard(
+                            article = article, 
+                            onClick = { onItemClick(Chat(article.id)) }
+                        )
                     }
                 }
             }
@@ -94,7 +97,7 @@ fun ArticleCard(article: Article, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(10.dp)) {
             if (article.media.image.url != null && article.media.image.type != "none" && article.media.image.type != "fallback_category") {
                 AsyncImage(
                     model = article.media.image.url,
